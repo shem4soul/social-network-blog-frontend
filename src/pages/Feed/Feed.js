@@ -118,15 +118,7 @@ class Feed extends Component {
 
     fetch(url, {
       method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          title: postData.title,
-          content: postData.content
-        }
-      )
+       body: formData
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
