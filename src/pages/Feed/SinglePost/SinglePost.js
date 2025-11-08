@@ -12,29 +12,58 @@ class SinglePost extends Component {
     content: ''
   };
 
-  componentDidMount() {
-    const postId = this.props.match.params.postId;
-    fetch('http://localhost:8080/feed/post/' + postId)
-      .then(res => {
-        if (res.status !== 200) {
-          throw new Error('Failed to fetch status');
-        }
-        return res.json();
-      })
-      .then(resData => {
-          console.log(resData.post.imageUrl);
-        this.setState({
-          title: resData.post.title,
-          author: resData.post.creator.name,
-          image: "http://localhost:8080/" + resData.post.imageUrl,
-          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-          content: resData.post.content,
+  // componentDidMount() {
+  //   const postId = this.props.match.params.postId;
+  //   fetch('http://localhost:8080/feed/post/' + postId)
+  //     .then(res => {
+  //       if (res.status !== 200) {
+  //         throw new Error('Failed to fetch status');
+  //       }
+  //       return res.json();
+  //     })
+  //     .then(resData => {
+  //         console.log(resData.post.imageUrl);
+  //       this.setState({
+  //         title: resData.post.title,
+  //         author: resData.post.creator.name,
+  //         image: "http://localhost:8080/" + resData.post.imageUrl,
+  //         date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+  //         content: resData.post.content,
+  //       });
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //     });
+  // }
+
+componentDidMount() {
+  const postId = this.props.match.params.postId;
+  fetch('http://localhost:8080/feed/post/' + postId)
+    .then(res => {
+      if (res.status !== 200) throw new Error('Failed to fetch status');
+      return res.json();
+    })
+    .then(resData => {
+      const imageUrl = "http://localhost:8080/" + resData.post.imageUrl;
+
+      // fetch image as blob
+      fetch(imageUrl)
+        .then(imgRes => imgRes.blob())
+        .then(blob => {
+          const imageObjectUrl = URL.createObjectURL(blob);
+
+          this.setState({
+            title: resData.post.title,
+            author: resData.post.creator.name,
+            image: imageObjectUrl,
+            date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+            content: resData.post.content,
+          });
         });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }
+    })
+    .catch(err => console.log(err));
+}
+
 
   render() {
     return (
