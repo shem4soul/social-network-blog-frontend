@@ -5,65 +5,74 @@ import './SinglePost.css';
 
 class SinglePost extends Component {
   state = {
-    title: '',
-    author: '',
-    date: '',
-    image: '',
-    content: ''
+    title: "",
+    author: "",
+    date: "",
+    image: "",
+    content: "",
   };
+
 
   // componentDidMount() {
   //   const postId = this.props.match.params.postId;
   //   fetch('http://localhost:8080/feed/post/' + postId)
   //     .then(res => {
-  //       if (res.status !== 200) {
-  //         throw new Error('Failed to fetch status');
-  //       }
+  //       if (res.status !== 200) throw new Error('Failed to fetch status');
   //       return res.json();
   //     })
   //     .then(resData => {
-  //         console.log(resData.post.imageUrl);
-  //       this.setState({
-  //         title: resData.post.title,
-  //         author: resData.post.creator.name,
-  //         image: "http://localhost:8080/" + resData.post.imageUrl,
-  //         date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-  //         content: resData.post.content,
-  //       });
+  //       const imageUrl = "http://localhost:8080/" + resData.post.imageUrl;
+
+  //       // fetch image as blob
+  //       fetch(imageUrl)
+  //         .then(imgRes => imgRes.blob())
+  //         .then(blob => {
+  //           const imageObjectUrl = URL.createObjectURL(blob);
+
+  //           this.setState({
+  //             title: resData.post.title,
+  //             author: resData.post.creator.name,
+  //             image: imageObjectUrl,
+  //             date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+  //             content: resData.post.content,
+  //           });
+  //         });
   //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     });
+  //     .catch(err => console.log(err));
   // }
 
-componentDidMount() {
-  const postId = this.props.match.params.postId;
-  fetch('http://localhost:8080/feed/post/' + postId)
-    .then(res => {
-      if (res.status !== 200) throw new Error('Failed to fetch status');
-      return res.json();
-    })
-    .then(resData => {
-      const imageUrl = "http://localhost:8080/" + resData.post.imageUrl;
+  componentDidMount() {
+    const postId = this.props.match.params.postId;
 
-      // fetch image as blob
-      fetch(imageUrl)
-        .then(imgRes => imgRes.blob())
-        .then(blob => {
-          const imageObjectUrl = URL.createObjectURL(blob);
+    fetch("http://localhost:8080/feed/post/" + postId)
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error("Failed to fetch post");
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        // Check if the imageUrl is hosted on Cloudinary or local server
+        let imageUrl = resData.post.imageUrl;
 
-          this.setState({
-            title: resData.post.title,
-            author: resData.post.creator.name,
-            image: imageObjectUrl,
-            date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-            content: resData.post.content,
-          });
+        if (!imageUrl.startsWith("http")) {
+          // If it's a local file path, prefix it with your backend URL
+          imageUrl = "http://localhost:8080/" + imageUrl;
+        }
+
+        // Update state directly — no need to fetch blob for Cloudinary images
+        this.setState({
+          title: resData.post.title,
+          author: resData.post.creator.name,
+          image: imageUrl,
+          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+          content: resData.post.content,
         });
-    })
-    .catch(err => console.log(err));
-}
-
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   render() {
     return (
